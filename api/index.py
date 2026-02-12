@@ -27,14 +27,14 @@ async def analisar_nota(file: UploadFile = File(...)):
     if not API_KEY:
         raise HTTPException(status_code=500, detail="API Key não configurada no Vercel")
 
-    # 1. Lê a imagem da memória (sem salvar no disco)
+
     try:
         contents = await file.read()
         image = PIL.Image.open(io.BytesIO(contents))
     except Exception:
         raise HTTPException(status_code=400, detail="Arquivo inválido. Envie uma imagem.")
 
-    # 2. Configura o Cliente
+    # Configurando lado do Cliente;
     client = genai.Client(api_key=API_KEY)
 
     prompt = """
@@ -50,7 +50,6 @@ async def analisar_nota(file: UploadFile = File(...)):
                 response_mime_type="application/json"
             )
         )
-        # Retorna o JSON direto
         return {"sucesso": True, "dados": response.text}
         
     except Exception as e:
