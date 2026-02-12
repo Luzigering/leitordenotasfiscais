@@ -22,7 +22,7 @@ API_KEY = os.environ.get("GEMINI_API_KEY")
 def home():
     return {"status": "Online", "msg": "API de Notas Fiscais rodando!"}
 
-@app.post("/analisar-nota")
+@app.post("/api/analisar-nota")
 async def analisar_nota(file: UploadFile = File(...)):
     if not API_KEY:
         raise HTTPException(status_code=500, detail="API Key não configurada no Vercel")
