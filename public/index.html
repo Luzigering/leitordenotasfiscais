@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota Fiscal AI Extractor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans antialiased min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-2xl w-full bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+        
+        <div class="p-8 text-center border-b border-gray-700">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-600 mb-4">
+                <i class="fas fa-robot text-2xl text-white"></i>
+            </div>
+            <h1 class="text-3xl font-bold text-white mb-2">Extrator de Notas Fiscais</h1>
+            <p class="text-gray-400">Arraste uma imagem ou clique para extrair dados estruturados usando a IA do Google.</p>
+        </div>
+
+        <div class="p-8">
+            <label for="file-upload" class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-700 hover:bg-gray-600 transition-all group">
+                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-3 group-hover:text-white transition-colors"></i>
+                    <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Clique para enviar</span> ou arraste aqui</p>
+                    <p class="text-xs text-gray-500">PNG, JPG ou WEBP</p>
+                </div>
+                <input id="file-upload" type="file" class="hidden" accept="image/*" />
+            </label>
+
+            <button onclick="enviarImagem()" id="btn-analisar" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2">
+                <span>Analisar Nota</span>
+                <i class="fas fa-magic"></i>
+            </button>
+        </div>
+
+        <div id="resultado-area" class="hidden bg-black p-6 border-t border-gray-700">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-sm font-semibold text-green-400">RESPOSTA JSON:</h3>
+                <button onclick="copiarJSON()" class="text-xs text-gray-500 hover:text-white">Copiar</button>
+            </div>
+            <pre id="json-output" class="text-xs text-green-300 font-mono overflow-x-auto whitespace-pre-wrap">...</pre>
+        </div>
+    </div>
+
+    <footer class="mt-8 text-gray-500 text-sm">
+        Desenvolvido por <span class="text-blue-400 font-bold">Gering</span> • Tecnologia e operações
+    </footer>
+
+    <script>
+        async function enviarImagem() {
+            const input = document.getElementById('file-upload');
+            const btn = document.getElementById('btn-analisar');
+            const output = document.getElementById('json-output');
+            const area = document.getElementById('resultado-area');
+
+            if (!input.files[0]) {
+                alert("Por favor, selecione uma imagem primeiro!");
+                return;
+            }
+
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            btn.disabled = true;
+            area.classList.add('hidden');
+
+
+            const formData = new FormData();
+            formData.append('file', input.files[0]);
+
+            try {
+          
+                const response = await fetch('/api/analisar-nota', { 
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                // Formatação json
+                let jsonLimpo = data;
+                if (data.dados) {
+                    try {
+                        jsonLimpo = JSON.parse(data.dados.replace(/```json|```/g, ''));
+                    } catch (e) {
+                        jsonLimpo = data.dados;
+                    }
+                }
+
+                output.textContent = JSON.stringify(jsonLimpo, null, 2);
+                area.classList.remove('hidden');
+
+            } catch (error) {
+                output.textContent = "Erro ao processar: " + error;
+                area.classList.remove('hidden');
+            } finally {
+                btn.innerHTML = '<span>Analisar Nota</span> <i class="fas fa-magic"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        function copiarJSON() {
+            const texto = document.getElementById('json-output').textContent;
+            navigator.clipboard.writeText(texto);
+            alert("JSON copiado!");
+        }
+    </script>
+</body>
+</html>
