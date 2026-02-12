@@ -18,9 +18,6 @@ app.add_middleware(
 
 API_KEY = os.environ.get("GEMINI_API_KEY")
 
-@app.get("/")
-def home():
-    return {"status": "Online", "msg": "API de Notas Fiscais rodando!"}
 
 @app.post("/api/analisar-nota")
 async def analisar_nota(file: UploadFile = File(...)):
