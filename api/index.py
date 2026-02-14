@@ -42,8 +42,8 @@ async def analisar_nota(file: UploadFile = File(...)):
     client = genai.Client(api_key=API_KEY)
 
     prompt = """
-    Analise esta nota fiscal. Extraia: Estabelecimento, CNPJ, Data, Valor Total e Itens.
-    Retorne APENAS um JSON válido.
+    Analise esta nota fiscal. Extraia: Estabelecimento, Data, Nome do cliente, Valor Total e Itens.
+    Retorne APENAS um JSON válido. Se não encontrar alguma informação retorne "não encontrado na nota";
     """
 
     try:
